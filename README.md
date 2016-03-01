@@ -3,9 +3,9 @@ package some common js function
 
 # Why
 
-In order to finish homework which arrage by [ife](https://github.com/baidu-ife/ife)
+In order to finish homework which arraged by [ife](https://github.com/baidu-ife/ife)
 
-On the other hand, I want to strengthen my ability which learn Native js grammar.
+On the other hand, I want to strengthen my ability of using native js grammar.
 
 # install
 
@@ -15,14 +15,17 @@ On the other hand, I want to strengthen my ability which learn Native js grammar
 
 # Use
 
-before use we need instantiate a constructor
+Before use we need instantiate a constructor
 
 ```
 $ = new u();
 ```
 
-and then let's get Element By Id
+And then let's get element by Id or other css selector
 
 ```
 var a = $.$("#a");
+var b = $.$(".b");
+var c = $.$("[c]");
+var d = $.$("[d=2016]");
 ```
