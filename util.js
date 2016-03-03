@@ -64,27 +64,33 @@ u.prototype = {
 
 		function findByAttrName ( targetAttr , parent ) {
 			var o = parent.getElementsByTagName("*");
+			var result = [];
 			for(var i = 0 ;i<o.length;i++) {
 				if (o[i].attributes.length === 0){continue;}
 				for(var j  = 0 ; j<o[i].attributes.length ; j++) {
 					if( o[i].attributes[j].name ===  targetAttr) {
-						return o[i];
+						result.push(o[i]);
+						break;
 				    }
 				}
 			}
+			return result;
 		}
 
 		function findByAttrValue ( targetAttr , parent ) {
 			var o = parent.getElementsByTagName("*");
 			var AttrName = targetAttr.split("=");
+			var result = [];
 			for(var i = 0 ;i<o.length;i++) {
 				if (o[i].attributes.length === 0){continue;}
 				for(var j  = 0 ; j<o[i].attributes.length ; j++) {
 					if( o[i].attributes[j].name === AttrName[0] && o[i].attributes[j].value === AttrName[1] ) {
-						return o[i];
+						result.push(o[i]);
+						break;
 					}
 				}
 			}
+			return result;
 		}
 	},
 	ObjectTest : function (obj) {
@@ -152,6 +158,22 @@ u.prototype = {
 			}
 		}
 		return a;
+	},
+	random    : function (min , max) {
+		return (min + Math.random()*(max - min)).toFixed(1);
+	},
+	toArray   : function (obj) {
+		var result = [];
+		if ( obj.length !== undefined ) {
+			for ( var i = 0; i<obj.length ; i++ ) {
+				result.push(obj[i]);
+			}	
+		} else {
+			console.error('This object hasn\'t "length" attribute ');
+			return;
+		}
+		
+		return result;
 	},
 	uniqArray : function (arr) {
 		var result = [], hash = {};
@@ -438,5 +460,182 @@ u.prototype = {
 	},
 	viewHeight : function () {
 		return window.innerHeight || document.documentElement.clientHeight;
-	}
+	},
+	typewriter : function (obj) {
+		var animate = obj.animate || "default";
+
+		var input = obj.input;
+		var output = obj.output;
+		var cursor = obj.output.getElementsByTagName("span")[0];
+		var delay  = obj.delay || 120;
+		var reverse = obj.reverse || false;
+		var chain = {
+			"domName" : "span",
+			"val" : [],
+			"dom" : null,
+			"parentChain" : null,
+			"attrs" : null
+		}
+		var $self = this;
+		loadCss();
+		/* init root */ 
+		chain.dom = document.createElement(chain.domName.toLowerCase());
+		output.insertBefore( chain.dom , cursor );
+		
+		if(animate.split("-")[0] === "3d") {
+			chain.dom.style.transformStyle = "preserve-3d"; 
+			chain.dom.style.perspective =  300+"px"; 
+		}
+
+		chain = linkTree( input , chain );
+		play(chain);
+
+		function linkTree( input , chain ) { // 把要复制的内容结点树复制一遍
+			/* 两边的空格需要清除 */ 
+			var children = $self.toArray( input.childNodes );
+			
+			for ( var i = 0 ; i < children.length; i++ ) {
+				var node = children[i];
+				// 判断是否是文字结点
+				if( node.nodeType === 3 ) {
+					chain.val = chain.val.concat(node.nodeValue.split(""));
+				} else if ( node.nodeType === 1 ) {
+					
+					var newChain = {
+						"domName" : node.nodeName,
+						"val" : [],
+						"dom" : null,
+						"parentChain" : null,
+						"attrs" : node.attributes
+					}
+					newChain = linkTree( node , newChain );
+					chain.val.push(newChain);
+				}
+			}
+			return chain;
+		}
+		
+		function loadCss(style) {
+			var oCss = $self.$("style");
+			if( oCss.length === 0 ) {
+				oCss = document.createElement("style");
+				
+			}
+			var styleSheet = ".typing-cursor {color: #fff;font-size: bold;animation: 0.7s blink linear infinite;}@keyframes blink {0% {opacity: 0;}50% {opacity: 1;}100% {opacity: 0;}}@keyframes shake {0% {transform: scale(1); opacity: 0; }10%, 20% {transform: scale(0.8) rotate(-5deg); opacity: 0.3;}30%, 50%, 70%, 90% {transform: scale(1.2) rotate(5deg); opacity: 0.6;}40%, 60%, 80% {transform: scale(1.2) rotate(-5deg); opacity: 0.9;}100% {transform: scale(1) rotate(0); opacity: 1;}}";
+			oCss.innerHTML += styleSheet;
+			document.getElementsByTagName("head")[0].appendChild(oCss);
+		}
+
+		function typing ( dom , span , callback ) {
+			setTimeout(function () {
+				switch (animate) {
+					case "easeOut":
+						easeOut(span); 
+						break;
+					case "number":
+						number(span);
+						break;
+					case "scale":
+						scale(span);
+						break;
+					case "shake":
+						shake(span);
+						break;
+					case "3d-rotate":
+						rotate3d(span);
+						break;
+					case "default" : 
+						break;
+				}
+
+				dom.appendChild(span);
+
+				callback();
+			},  delay);
+		}
+
+		function play ( chain , parent ) {
+			if ( chain.val.length === 0 ) {
+				return;
+			}
+			parent = parent || null;
+			var curr = reverse ?  chain.val.pop() : chain.val.shift();
+			
+			if ( $self.ObjectTest(curr) === "String" ) {
+				var span = document.createElement("span");
+				span.appendChild(document.createTextNode(curr));
+				
+				typing(chain.dom , span , function () {
+					if (chain.val.length) {
+						play( chain , chain.dom ); 
+					} else if (chain.parentChain) { // 回溯
+						play( chain.parentChain );
+					}
+				});
+			} else {  //如果是非字符，就创建一个结点
+				var dom = document.createElement( curr.domName );
+				
+				var attrs = $self.toArray(curr.attrs);
+
+				for( var i = 0; i<attrs.length ; i++ ) {
+					var attr = attrs[i];
+					dom.setAttribute(attr.name , attr.value);
+				}
+				curr.dom = dom;
+
+				// 父级结点添加新元素
+				curr.parentChain = chain;
+				parent.appendChild(curr.dom);
+				
+				// 判断该结点是否有值，如果有就继续遍历，如果没有，就继续遍历父级 
+				play( curr.val.length ? curr : chain ,  curr.val.length ? curr.dom : chain.dom );
+			}
+		}
+
+
+		/*** animation ***/
+		function easeOut (span) {
+			span.style.opacity = 0;
+			span.style.transition = "1s";
+
+			setTimeout( function () {
+				span.style.opacity = 1;
+			},120);
+		}
+
+
+		function number (span) {
+			var value = span.innerText || textContent;
+			var r = Math.floor($self.random(0,2));
+			span.innerText ? span.innerText =  r: span.textContent = r;		
+			setTimeout( function () {
+				span.innerText ? span.innerText =  value: span.textContent = value;
+			},1500);
+		}
+
+		function shake (span) {
+			span.style.animation = "0.5s shake";
+		}
+
+		function rotate3d (span) {
+			var rDeg   = $self.random(-180 , 180);
+
+			span.style.transition = "0.5s ease";
+			span.style.transform = "rotateY("+ rDeg +"deg)";
+			
+			setTimeout(function() {
+				span.style.transform = "rotateY(0deg)";
+			},120);
+		}
+		function scale (span) {
+			var rScale = $self.random(0.2 , 0.6);
+
+			span.style.transition = "0.5s ease";
+			span.style.transform = "scale("+rScale+")";
+
+			setTimeout(function() {
+				span.style.transform = "scale(1)";
+			},60);
+		}
+	}	
 }
