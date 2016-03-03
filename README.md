@@ -55,16 +55,16 @@ $.typewriter({
 
 then you can make a typewriter effect
 
-[demo](/typewriter-demo.html)
+<a href="./typewriter-demo.html" target="blank"></a>
 
-MeanWhile , I alse provide some animate function such as
+MeanWhile , I also provide some animate function such as
 
 ```
-easeOut  <br>	
-number   <br>
-scale    <br>
-shake    <br>
-3d-rotate<br>	
+easeOut  	
+number   
+scale    
+shake    
+3d-rotate	
 ```
 
 If the animate doesn't have value then It will be defalut effect
