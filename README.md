@@ -55,7 +55,7 @@ $.typewriter({
 
 then you can make a typewriter effect
 
-<a href="./typewriter-demo.html" target="blank">demo</a>
+[demo](http://numerhero.github.io/assets/download/tool.js/typewriter-demo.html)
 
 MeanWhile , I also provide some animate function such as
 
