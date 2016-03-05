@@ -1,9 +1,10 @@
 # tool.js
-enclose some common js function 
+
+Enclose some common js and some accidental function by myself
 
 # Why
 
-In order to finish homework which arraged by [ife](https://github.com/baidu-ife/ife)
+In order to finish homework which arraged by [ife](https://github.com/baidu-ife/ife).
 
 On the other hand, I want to strengthen my ability of using native js grammar.
 
@@ -21,13 +22,128 @@ Before use we need instantiate a constructor
 $ = new u();
 ```
 
-And then let's get element by Id or other css selector
+## sizzle
+
+Then let's get element by Id or other css selector
 
 ```
 var a = $.$("#a");
 var b = $.$(".b");
 var c = $.$("[c]");
 var d = $.$("[d=2016]");
+```
+
+caveat :  if you find a element ,It will return a HTMLdocumentElement while if you find elements it will return a Array;
+
+like Jquery, you can find a element sheet by sheet
+
+```
+var a = $.$("#a .b");
+```
+
+```
+var b = $.$("[aaa=bbb] .ccc #ddd");
+```
+
+## delegateEvent
+
+if you want to delegate a Event
+
+first example:
+such as this layout
+```
+<ul>
+	<div>sss</div>
+	<li>ss</li>
+	<li>aasa</li>
+	<li>ss</li>
+</ul>	
+```
+
+```
+$ = new u();
+window.onload = function () {
+	var ul = $.$("ul");
+	$.delegateEvent( ul , "li" , "click" , function () {
+		console.info("Beind every successful time that is a lot of unsuccessful years");
+	})
+}
+```
+
+second example:
+such as this layout
+```
+<ul>
+	<div>sss</div>
+	<li class="sa">ss</li>
+	<li>aasa</li>
+	<li class="sa">ss</li>
+</ul>	
+```
+
+and you want to active event when just click tags with class of "sa".
+
+```
+$ = new u();
+window.onload = function () {
+	var ul = $.$("ul");
+	$.delegateEvent( ul , "li.sa" , "click" , function () {
+		console.info("Beind every successful time that is a lot of unsuccessful years");
+	})
+}
+```
+
+third example:
+such as this layout
+```
+<ul>
+	<div class="ab">sss</div>
+	<li class="sa">ss</li>
+	<li>aasa</li>
+	<li class="sa">ss</li>
+</ul>	
+```
+
+if you want to active event when you click different tags with different class.
+
+```
+$ = new u();
+window.onload = function () {
+	var ul = $.$("ul");
+	$.delegateEvent( ul , "li.sa div.ab" , "click" , function () {
+		console.info("Beind every successful time that is a lot of unsuccessful years");
+	})
+}
+```
+
+the delegateEvent is inherit by addEvent
+so you also can use the namespace to bind event
+
+```
+$ = new u();
+window.onload = function () {
+	var ul = $.$("ul");
+	$.delegateEvent( ul , "li" , "click.show" , function () {
+		console.info("Beind every successful time that is a lot of unsuccessful years");
+	})
+}
+```
+
+Meanwhile you can use the undelegateEvent to unbind this event
+And you can give a callback to execute
+
+```
+$ = new u();
+window.onload = function () {
+	var ul = $.$("ul");
+	$.delegateEvent( ul , "li" , "click.show" , function () {
+		console.info("Beind every successful time that is a lot of unsuccessful years");
+	});
+
+	$.undelegateEvent( ul , "click.show" , function () {
+		console.log("unbind event is successful!!");
+	});
+}
 ```
 
 # some accidental function
@@ -53,11 +169,11 @@ $.typewriter({
 });
 ```
 
-then you can make a typewriter effect
+Then you can make a typewriter effect
 
 [demo](http://numerhero.github.io/assets/download/tool.js/typewriter-demo.html)
 
-MeanWhile , I also provide some animate function such as
+Meanwhile , I also provide more animate effect , such as
 
 ```
 easeOut  	
@@ -67,4 +183,4 @@ shake
 3d-rotate	
 ```
 
-If the animate doesn't have value then It will be defalut effect
+caveat: If the animate doesn't give param. It will be defalut effect.

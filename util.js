@@ -6,16 +6,35 @@ u.prototype = {
 	constructor : u,
 	namespace : {},
 	$ : function (selector) {
-		var aS = selector.split(" ");
+		var $self = this;
+		var aS = this.simpleTrim(selector);
+		if (aS.substring(0,1) === "<") {
+			createStruct(aS);
+			return;
+		}
+
+	 	aS = aS.split(" ");
+
+	 	var k;
 		if( aS.length === 1 ) {
-			return mainfn(selector);
+			 k = mainfn(selector);
 		}else {
-			var k = mainfn(aS[0]);
+				k = mainfn(aS[0]);
 			for( var i = 1 ; i < aS.length ; i++ ) {
 				k = mainfn(aS[i] , k);
 			}
-			return k
 		}
+
+		if(k.length === 1) {
+			return k[0];
+		} else {
+			return k;
+		}
+
+		function createStruct ( str ) {
+			/** create html elements struct **/ 
+			
+		}		
 
 		function mainfn (selector , parent) {
 			parent = parent || document;
@@ -23,43 +42,66 @@ u.prototype = {
 			switch(selector.substring(0,1)) {
 				case "#":
 					selector = selector.substring(1);
-					return result = findById( selector , parent );
+					return result = handleArrayElement( selector , parent , findById );
 				case ".":
 					selector = selector.substring(1);
-					return result = findByClass( selector , parent );
+					return result = handleArrayElement( selector , parent , findByClass );
 				case "[":
 					selector = selector.substring(1,selector.length-1);
 					if(selector.indexOf("=") === -1) {
-						return result = findByAttrName( selector , parent );
+						return result = handleArrayElement( selector , parent , findByAttrName );
 					}else {
-						return result = findByAttrValue( selector , parent );
+						return result = handleArrayElement( selector , parent , findByAttrValue );
 					}
 				default :
-					return result = findByTagName( selector , parent );
+					return result = handleArrayElement( selector , parent , findByTagName );
 			}
 		}
 
+		function handleArrayElement ( selector ,  parent , handle ) {
+			var res = [];
+			if($self.ObjectTest(parent) === "Array") {
+				for(var i = 0 ; i<parent.length ; i++) {
+					var r = handle( selector , parent[i] );
+					if( r !== undefined ) {
+						res.push.apply(res , r );
+					}
+				}
+			}else {
+				res = handle( selector , parent );
+			}
+			return res;
+		}
+
 		function findByTagName ( tagName , parent ) {
-			return parent.getElementsByTagName(tagName)[0];
+			return parent.getElementsByTagName(tagName);
 		}
 
 		function findById ( targetId , parent ) {
-			return parent.getElementById( targetId );
+			var r = [];
+			var o = parent.getElementsByTagName("*");
+			
+			for(var i = 0 ; i<o.length ; i++) {
+				if( targetId === o[i].id) {
+					r.push(o[i]);
+					return r;
+				};
+			}
 		}
 
-		function findByClass ( targetClass , parent ) {
+		function findByClass ( targetClass , parent ) { 
+			var r = [];
 			var o = parent.getElementsByTagName("*");
-			var result = [];
 			for(var i = 0 ; i<o.length; i++) {
 				var aclass = o[i].className.split(" ");
 				for(var j = 0 ; j < aclass.length ; j++){
-					if( aclass[j] ===  targetClass) {
-						result.push(o[i]);
+					if( aclass[j] ===  targetClass ) {
+						r.push(o[i]);
 						break;
 					}
 				}
 			}
-			return result;
+			return r;
 		}
 
 		function findByAttrName ( targetAttr , parent ) {
@@ -94,29 +136,8 @@ u.prototype = {
 		}
 	},
 	ObjectTest : function (obj) {
-		var objType = Object.prototype.toString.call(obj);
-		var result = "";
-		switch(objType) {
-			case "[object Array]": 
-				return "Array";
-				break;
-			case "[object Function]": 
-				return "Function";
-				break;
-			case "[object Object]":
-				return "Object";
-				break;
-			case "[object String]": 
-				return "String";
-				break;
-			case "[object Number]": 
-				return "Number";
-				break;
-			case "[object RegExp]":
-				return "RegExp";
-				break;
-			default: console.log(objType);
-		}
+		var a = Object.prototype.toString.call(obj).split(/(object )/);
+		return a[a.length - 1].substring(0,a[a.length - 1].length - 1);
 	},
 	cloneObject : function (obj) {
 		var a = {};
@@ -186,7 +207,7 @@ u.prototype = {
 		}
 		return result;
 	},
-	simpleTrim : function () {
+	simpleTrim : function (str) {
 		var newStr = str.split("");
 		var f,e;
 		var result = [];
@@ -338,27 +359,66 @@ u.prototype = {
 
 		callback && callback();
 	},
-	delegateEvent : function ( element , tag , eventName  , listener ) {
+	delegateEvent : function ( element , selector , eventName  , listener ) {
 		listener = listener || null;
+		selector = this.simpleTrim( selector );
+		var sS = selector.split(" ");
+		var opt = [];
+		var $self = this;
+		sS.forEach(function ( value , idx ) {
+			 opt.push({
+			 	nN : value.split(".")[0],
+			 	sC : value.split(".")[1]
+			 });
+		});
 		this.addEvent( element , eventName , function(ev) {
 			var ev = ev || event;
-			if( ev.target && ev.target.nodeName === tag.toUpperCase() ) {
-				if(!!!listener) {
-					console.error("listener doesn't give the parameter");
-				}
-				// 如果是对应的标签，就执行该标签相应的函数
-				switch(Object.prototype.toString.call(listener)) {
-					case "[object Function]":
-						listener && listener( ev , ev.target );
+			opt.forEach(function ( value , idx ) {
+				var classS = false;
+				var tagS   = false;
+				var oTarget = null;
+
+				/* 模拟事件捕获机制 */
+				var obj = ev.target;
+				while ( obj !== element ) {
+					(value.sC === undefined) ? classS = true : classS = $self.hasClass(obj , value.sC);
+					if (obj && obj.nodeName === value.nN.toUpperCase() && classS) {
+						tagS = true;
+						oTarget = obj;
 						break;
-					default: console.error("This listener is not a function");
-						return;
+					}
+					obj = obj.parentNode;
+					classS = false;
+					tagS   = false;
 				}
-			}
+				
+				if( tagS && classS) {
+					if(!!!listener) {
+						console.error("listener doesn't bind a function!");
+					}
+
+					switch(Object.prototype.toString.call(listener)) {
+						case "[object Function]":
+							listener && listener( ev , oTarget );
+							break;
+						default: console.error("This listener is not a function");
+							return;
+					}
+				}
+			});
 		});
 	},
 	undelegateEvent : function ( element , event ) {
 		this.removeEvent( element , event );
+	},
+	hasClass : function (ele , tclass) {
+		var scalss = ele.className.split(" ");
+		for( var i = 0 ; i<scalss.length ; i++ ) {
+			if( scalss[i] === tclass ) {
+				return true;
+			}
+		}
+		return false; 
 	},
 	setCookie : function ( name , value , expiredays ) {
 		expiredays  = expiredays || 1;
@@ -517,7 +577,7 @@ u.prototype = {
 		
 		function loadCss(style) {
 			var oCss = $self.$("style");
-			if( oCss.length === 0 ) {
+			if( oCss === undefined ) {
 				oCss = document.createElement("style");
 				
 			}
