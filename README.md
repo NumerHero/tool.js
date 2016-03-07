@@ -45,6 +45,60 @@ var a = $.$("#a .b");
 var b = $.$("[aaa=bbb] .ccc #ddd");
 ```
 
+## findElement
+
+if you want find a Element 's child , you can use findElement
+
+such as this layout
+
+```
+<ul class="a-list">
+	<li>aaa</li>
+	<li class="aaa bbb">bbb</li>
+	<li>ccc</li>
+</ul>
+```
+
+Now you get the ul element , however you need get the li with class of "aaa bbb"
+
+```
+$.findElement( "aaa" , ulElement , $.findByClass );
+```
+
+## getToday
+
+return the date of today which take computer's time as standard
+
+```
+$.getToday(); // "2016-03-07"
+```
+
+## viewWidth[viewHeight]
+
+return browser 's width[height] of view 
+
+## addEvent
+
+bind event(s)
+
+```
+$.addEvent( Element , event , handle );
+```
+
+you can bind same function on different events with namespace
+
+```
+$.addEvent( document , "click.a mousemove.b" , function() {
+	console.log($.namespace);
+} );
+```
+
+if you want unbind some event use the namespace like Jq
+
+```
+$.removeEvent( document , "mousemove.b" , [callback] );
+```
+
 ## delegateEvent
 
 if you want to delegate a Event

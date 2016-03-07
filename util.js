@@ -5,6 +5,7 @@ function u() {
 u.prototype = {
 	constructor : u,
 	namespace : {},
+	delegatespace : {},
 	$ : function (selector) {
 		var $self = this;
 		var aS = this.simpleTrim(selector);
@@ -25,11 +26,7 @@ u.prototype = {
 			}
 		}
 
-		if(k.length === 1) {
-			return k[0];
-		} else {
-			return k;
-		}
+		return k;
 
 		function createStruct ( str ) {
 			/** create html elements struct **/ 
@@ -42,98 +39,104 @@ u.prototype = {
 			switch(selector.substring(0,1)) {
 				case "#":
 					selector = selector.substring(1);
-					return result = handleArrayElement( selector , parent , findById );
+					var f = $self.findById;
+					return result = $self.findElement( selector , parent , f );
 				case ".":
 					selector = selector.substring(1);
-					return result = handleArrayElement( selector , parent , findByClass );
+					var f = $self.findByClass;
+					return result = $self.findElement( selector , parent , f );
 				case "[":
 					selector = selector.substring(1,selector.length-1);
+					var f;
 					if(selector.indexOf("=") === -1) {
-						return result = handleArrayElement( selector , parent , findByAttrName );
+						f = $self.findByAttrName;
+						return result = $self.findElement( selector , parent , f );
 					}else {
-						return result = handleArrayElement( selector , parent , findByAttrValue );
+						f = $self.findByAttrValue;
+						return result = $self.findElement( selector , parent , f );
 					}
 				default :
-					return result = handleArrayElement( selector , parent , findByTagName );
+					var f = $self.findByTagName;
+					return result = $self.findElement( selector , parent , f );
 			}
 		}
-
-		function handleArrayElement ( selector ,  parent , handle ) {
-			var res = [];
-			if($self.ObjectTest(parent) === "Array") {
-				for(var i = 0 ; i<parent.length ; i++) {
-					var r = handle( selector , parent[i] );
-					if( r !== undefined ) {
-						res.push.apply(res , r );
-					}
+	},
+	findByAttrValue : function  ( targetAttr , parent ) {
+		var o = parent.getElementsByTagName("*");
+		var AttrName = targetAttr.split("=");
+		var result = [];
+		for(var i = 0 ;i<o.length;i++) {
+			if (o[i].attributes.length === 0){continue;}
+			for(var j  = 0 ; j<o[i].attributes.length ; j++) {
+				if( o[i].attributes[j].name === AttrName[0] && o[i].attributes[j].value === AttrName[1] ) {
+					result.push(o[i]);
+					break;
 				}
-			}else {
-				res = handle( selector , parent );
 			}
-			return res;
 		}
-
-		function findByTagName ( tagName , parent ) {
-			return parent.getElementsByTagName(tagName);
+		return result;
+	},
+	findByAttrName : function  ( targetAttr , parent ) {
+		var o = parent.getElementsByTagName("*");
+		var result = [];
+		for(var i = 0 ;i<o.length;i++) {
+			if (o[i].attributes.length === 0){continue;}
+			for(var j  = 0 ; j<o[i].attributes.length ; j++) {
+				if( o[i].attributes[j].name ===  targetAttr) {
+					result.push(o[i]);
+					break;
+			    }
+			}
 		}
-
-		function findById ( targetId , parent ) {
-			var r = [];
-			var o = parent.getElementsByTagName("*");
-			
-			for(var i = 0 ; i<o.length ; i++) {
-				if( targetId === o[i].id) {
+		return result;
+	},
+	findByClass : function  ( targetClass , parent ) { 
+		var r = [];
+		var o = parent.getElementsByTagName("*");
+		for(var i = 0 ; i<o.length; i++) {
+			var aclass = o[i].className.split(" ");
+			for(var j = 0 ; j < aclass.length ; j++){
+				if( aclass[j] ===  targetClass ) {
 					r.push(o[i]);
-					return r;
-				};
-			}
-		}
-
-		function findByClass ( targetClass , parent ) { 
-			var r = [];
-			var o = parent.getElementsByTagName("*");
-			for(var i = 0 ; i<o.length; i++) {
-				var aclass = o[i].className.split(" ");
-				for(var j = 0 ; j < aclass.length ; j++){
-					if( aclass[j] ===  targetClass ) {
-						r.push(o[i]);
-						break;
-					}
+					break;
 				}
 			}
-			return r;
 		}
-
-		function findByAttrName ( targetAttr , parent ) {
-			var o = parent.getElementsByTagName("*");
-			var result = [];
-			for(var i = 0 ;i<o.length;i++) {
-				if (o[i].attributes.length === 0){continue;}
-				for(var j  = 0 ; j<o[i].attributes.length ; j++) {
-					if( o[i].attributes[j].name ===  targetAttr) {
-						result.push(o[i]);
-						break;
-				    }
+		return r;
+	},
+	findById : function  ( targetId , parent ) {
+		var r = [];
+		var o = parent.getElementsByTagName("*");
+		
+		for(var i = 0 ; i<o.length ; i++) {
+			if( targetId === o[i].id) {
+				r.push(o[i]);
+				return r;
+			};
+		}
+	},
+	findByTagName : function  ( tagName , parent ) {
+		return parent.getElementsByTagName(tagName);
+	},
+	findElement : function  ( selector ,  parent , handle ) {
+		var res = [];
+		if(this.ObjectTest(parent) === "Array") {
+			for(var i = 0 ; i<parent.length ; i++) {
+				var r = handle( selector , parent[i] );
+				if( r !== undefined ) {
+					res.push.apply(res , r );
 				}
 			}
-			return result;
+		}else {
+			res = handle( selector , parent );
 		}
 
-		function findByAttrValue ( targetAttr , parent ) {
-			var o = parent.getElementsByTagName("*");
-			var AttrName = targetAttr.split("=");
-			var result = [];
-			for(var i = 0 ;i<o.length;i++) {
-				if (o[i].attributes.length === 0){continue;}
-				for(var j  = 0 ; j<o[i].attributes.length ; j++) {
-					if( o[i].attributes[j].name === AttrName[0] && o[i].attributes[j].value === AttrName[1] ) {
-						result.push(o[i]);
-						break;
-					}
-				}
-			}
-			return result;
+		if(res.length === 1) {
+			return res[0];
+		} else {
+			return res;			
 		}
+
 	},
 	ObjectTest : function (obj) {
 		var a = Object.prototype.toString.call(obj).split(/(object )/);
@@ -180,8 +183,13 @@ u.prototype = {
 		}
 		return a;
 	},
-	random    : function (min , max) {
-		return (min + Math.random()*(max - min)).toFixed(1);
+	random    : function (min , max , toFix) {
+		toFix = toFix || 1;
+		if (this.ObjectTest(toFix) !== "Number") {
+			console.error("toFix isn't a number!!");
+			return;
+		}
+		return (min + Math.random()*(max - min)).toFixed(toFix);
 	},
 	toArray   : function (obj) {
 		var result = [];
@@ -359,59 +367,54 @@ u.prototype = {
 
 		callback && callback();
 	},
-	delegateEvent : function ( element , selector , eventName  , listener ) {
+	delegateEvent : function ( element , selector , eventName , listener ) {
+		var $self = this;
+		if(!!!listener) {
+			console.error("listener doesn't bind a function!");
+			return;
+		} else if ($self.ObjectTest(listener) !== "Function"){
+			console.error("This listener is not a function")
+			return;
+		}
+		
+		
 		listener = listener || null;
-		selector = this.simpleTrim( selector );
+		selector = $self.simpleTrim( selector );
 		var sS = selector.split(" ");
 		var opt = [];
-		var $self = this;
+		
 		sS.forEach(function ( value , idx ) {
 			 opt.push({
 			 	nN : value.split(".")[0],
 			 	sC : value.split(".")[1]
 			 });
 		});
-		this.addEvent( element , eventName , function(ev) {
+		$self.addEvent( element , eventName , function(ev) {
 			var ev = ev || event;
-			opt.forEach(function ( value , idx ) {
+			for( var i = 0 ; i<opt.length ; i++ ) {
 				var classS = false;
 				var tagS   = false;
-				var oTarget = null;
 
-				/* 模拟事件捕获机制 */
-				var obj = ev.target;
-				while ( obj !== element ) {
-					(value.sC === undefined) ? classS = true : classS = $self.hasClass(obj , value.sC);
-					if (obj && obj.nodeName === value.nN.toUpperCase() && classS) {
-						tagS = true;
-						oTarget = obj;
-						break;
-					}
-					obj = obj.parentNode;
-					classS = false;
-					tagS   = false;
+				(opt[i].sC === undefined) ? classS = true : classS = $self.hasClass(ev.target , opt[i].sC);
+				if (ev.target && ev.target.nodeName === opt[i].nN.toUpperCase() && classS) {
+					tagS = true;
 				}
-				
+
 				if( tagS && classS) {
-					if(!!!listener) {
-						console.error("listener doesn't bind a function!");
-					}
-
-					switch(Object.prototype.toString.call(listener)) {
-						case "[object Function]":
-							listener && listener( ev , oTarget );
-							break;
-						default: console.error("This listener is not a function");
-							return;
-					}
+					listener && listener( ev , ev.target );
+					break;
 				}
-			});
+			}
 		});
 	},
 	undelegateEvent : function ( element , event ) {
 		this.removeEvent( element , event );
 	},
 	hasClass : function (ele , tclass) {
+		if( ele === null ) {
+			console.error("selector has some error");
+			return;
+		}
 		var scalss = ele.className.split(" ");
 		for( var i = 0 ; i<scalss.length ; i++ ) {
 			if( scalss[i] === tclass ) {
@@ -457,6 +460,17 @@ u.prototype = {
 			}
 		}
 		return result;
+	},
+	getToday : function () {
+		var D = new Date();
+		var YYYY = D.getFullYear();
+		var MM   = format(D.getMonth() + 1);
+		var DD   = format(D.getDate());
+		return YYYY + "-" + MM + "-" + DD;
+		
+		function format( value ) {
+			return (0<value<=9) ? "0" + value : "" + value;
+		}
 	},
 	Ajax : function (obj) {
 		var ajaxSettings = {
