@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+	<head>
+		<title>test</title>
+		<meta charset="utf-8">	
+		<style>
+			ul {
+				list-style: none;
+				padding: 0;
+			}
+	
+			h1 {
+				margin: 0;
+			}
+			.m-list {
+				width: 300px;
+				height: auto;
+			}
+
+			.m-list>li {
+				width: 100%;
+				height: auto;
+				margin: 5px;
+			}
+
+			h1 {
+				width: 100%;
+				height: 30px;
+				text-align: center;
+				background: #ccc;
+				font: 100 16px/30px "微软雅黑";
+			}
+			
+			.list-wrap {
+				height: 0;
+				overflow: hidden;
+				background: yellow;
+				transition: 1s;
+			}
+		</style>
+	</head>
+	<body>
+		<ul class="m-list">
+			<li class="m-li">
+				<h1 >点击我控制我父级的li的高度<span class="aa">ss</span></h1>
+				<div class="list-wrap">
+					<ul class="a-list">
+						<li>aaa</li>
+						<li>bbb</li>
+						<li>ccc</li>
+					</ul>
+				</div>
+			</li>
+		</ul>
+
+		<div class="input" style="display:none;">牛顺顺hahahahahhahsidjlaiji1551351531</div>
+		<div class="output"></div>
+
+		<script src="util.js"></script>
+		<script>
+			$ = new u();
+			window.onload = function () {
+				var ul = $.$(".m-list");
+				$.delegateEvent( ul , "h1 span.aa" , "click" , function (ev , target) {
+					var wrap = target.parentNode.getElementsByTagName('div')[0];
+					var oL   = wrap.getElementsByTagName("ul")[0];
+
+					!!!wrap.offsetHeight ? 
+						wrap.style.height = oL.offsetHeight + "px" 
+						: wrap.style.height = 0
+				});
+
+				$.typewriter({
+				    delay : 120,
+				    input : $.$(".input"),
+				    output : $.$(".output"),
+				    animate : "easeOut",
+				});
+			}
+		</script>
+	</body>
+</html> 

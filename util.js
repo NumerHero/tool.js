@@ -131,6 +131,11 @@ u.prototype = {
 			res = handle( selector , parent );
 		}
 
+		if (res === undefined) {
+			console.error(" selector grammer has's some error! ");
+			return;
+		}
+
 		if(res.length === 1) {
 			return res[0];
 		} else {
@@ -373,7 +378,7 @@ u.prototype = {
 			console.error("listener doesn't bind a function!");
 			return;
 		} else if ($self.ObjectTest(listener) !== "Function"){
-			console.error("This listener is not a function")
+			console.error("This listener is not a function!");
 			return;
 		}
 		
@@ -412,8 +417,8 @@ u.prototype = {
 	},
 	hasClass : function (ele , tclass) {
 		if( ele === null ) {
-			console.error("selector has some error");
-			return;
+			console.error("selector has some error!");
+			return false;
 		}
 		var scalss = ele.className.split(" ");
 		for( var i = 0 ; i<scalss.length ; i++ ) {
@@ -468,8 +473,8 @@ u.prototype = {
 		var DD   = format(D.getDate());
 		return YYYY + "-" + MM + "-" + DD;
 		
-		function format( value ) {
-			return (0<value<=9) ? "0" + value : "" + value;
+		function format( value ) {		
+			return (0 < value && value < 10) ? "0" + value : value;
 		}
 	},
 	Ajax : function (obj) {
@@ -515,7 +520,7 @@ u.prototype = {
 		xhr.open(ajaxSettings.method , ajaxSettings.url , ajaxSettings.sync );
 
 		xhr.send();
-		
+
 		// 将获取的到的数据传递给success 函数进行处理
 		xhr.onload  = function () {
 			ajaxSettings.success( xhr.responseText );
@@ -524,7 +529,7 @@ u.prototype = {
 		xhr.ontimeout = function() {
 			ajaxSettings.timeout();
 		};
-
+		
 		xhr.onerror = function() {
 			ajaxSettings.error();
 		};
@@ -593,7 +598,6 @@ u.prototype = {
 			var oCss = $self.$("style");
 			if( oCss === undefined ) {
 				oCss = document.createElement("style");
-				
 			}
 			var styleSheet = ".typing-cursor {color: #fff;font-size: bold;animation: 0.7s blink linear infinite;}@keyframes blink {0% {opacity: 0;}50% {opacity: 1;}100% {opacity: 0;}}@keyframes shake {0% {transform: scale(1); opacity: 0; }10%, 20% {transform: scale(0.8) rotate(-5deg); opacity: 0.3;}30%, 50%, 70%, 90% {transform: scale(1.2) rotate(5deg); opacity: 0.6;}40%, 60%, 80% {transform: scale(1.2) rotate(-5deg); opacity: 0.9;}100% {transform: scale(1) rotate(0); opacity: 1;}}";
 			oCss.innerHTML += styleSheet;

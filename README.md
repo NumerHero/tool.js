@@ -6,7 +6,7 @@ Enclose some common js and some accidental function by myself
 
 In order to finish homework which arraged by [ife](https://github.com/baidu-ife/ife).
 
-On the other hand, I want to strengthen my ability of using native js grammar.
+On the other hand, I want to strengthen my ability of using native js syntax.
 
 # install
 
@@ -35,7 +35,7 @@ var d = $.$("[d=2016]");
 
 caveat :  if you find a element ,It will return a HTMLdocumentElement while if you find elements it will return a Array;
 
-like Jquery, you can find a element sheet by sheet
+like Jquery, you can find a element layer by layer
 
 ```
 var a = $.$("#a .b");
