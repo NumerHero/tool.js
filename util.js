@@ -132,7 +132,7 @@ u.prototype = {
 		}
 
 		if (res === undefined) {
-			console.error(" selector grammer has's some error! ");
+			throw new Error(" selector grammer has's some error! ");
 			return;
 		}
 
@@ -191,7 +191,7 @@ u.prototype = {
 	random    : function (min , max , toFix) {
 		toFix = toFix || 1;
 		if (this.ObjectTest(toFix) !== "Number") {
-			console.error("toFix isn't a number!!");
+			throw new Error("toFix isn't a number!!");
 			return;
 		}
 		return (min + Math.random()*(max - min)).toFixed(toFix);
@@ -203,7 +203,7 @@ u.prototype = {
 				result.push(obj[i]);
 			}	
 		} else {
-			console.error('This object hasn\'t "length" attribute ');
+			throw new Error('This object hasn\'t "length" attribute ');
 			return;
 		}
 		
@@ -221,23 +221,7 @@ u.prototype = {
 		return result;
 	},
 	simpleTrim : function (str) {
-		var newStr = str.split("");
-		var f,e;
-		var result = [];
-		for( var i = 0 ; i<newStr.length ; i++ ) {
-			if(this.ObjectTest(newStr[i]) === "String" && newStr[i] != " ") {
-				f = i;
-				break;
-			}
-		}
-
-		for( var i = newStr.length - 1 ; i>=0 ; i-- ) {
-			if(this.ObjectTest(newStr[i]) === "String" && newStr[i] != " ") {
-				e = i;
-				break;
-			}
-		}
-		return str.substring(f , e+1);
+		return str.replace(/^(\s|\u00A0)+|(\s|\u00A0)+$/g, "");
 	},
 	eachObj : function (arr , fn) {
 		var obj = {};
@@ -277,6 +261,7 @@ u.prototype = {
 
 			element.className = EmClass.join(" ");
 		} else {
+			throw new Error("className is undefined");
 			return;
 		}	
 	},
@@ -375,10 +360,10 @@ u.prototype = {
 	delegateEvent : function ( element , selector , eventName , listener ) {
 		var $self = this;
 		if(!!!listener) {
-			console.error("listener doesn't bind a function!");
+			throw new Error("listener doesn't bind a function!");
 			return;
 		} else if ($self.ObjectTest(listener) !== "Function"){
-			console.error("This listener is not a function!");
+			throw new Error("This listener is not a function!");
 			return;
 		}
 		
@@ -416,8 +401,9 @@ u.prototype = {
 		this.removeEvent( element , event );
 	},
 	hasClass : function (ele , tclass) {
+		tclass = this.simpleTrim(tclass);
 		if( ele === null ) {
-			console.error("selector has some error!");
+			throw new Error("selector has some error!");
 			return false;
 		}
 		var scalss = ele.className.split(" ");
@@ -456,7 +442,7 @@ u.prototype = {
 	rmCookie : function () {
 		this.setCookie(name , '1' , -1);
 	},
-	getIndex : function () {
+	getIndex : function ( element ) {
 		var result = -1;
 		for( var i = 0 ; i<element.offsetParent.children.length; i++ ) {
 			if ( element === element.offsetParent.children[i]) {
@@ -495,7 +481,7 @@ u.prototype = {
 				console.warn(" Ajax request timeout !!!");
 			},
 			error       : obj.error    || function ( XHR , sta , errThr ) {
-				console.error( "error" + sta + " "  + errThr );	
+				throw new Error( "error" + sta + " "  + errThr );	
 			},
 			xhr         : 
 			window.XMLHttpRequest && (window.location.protocol !== "file:" || !window.XDomainRequest ? 
@@ -533,6 +519,13 @@ u.prototype = {
 		xhr.onerror = function() {
 			ajaxSettings.error();
 		};
+	},
+	getInnerText : function (e) {
+		if( e.nodeType === 1 ) {
+			return e.innerText ? e.innerText : e.textContent;
+		} else {
+			throw new Error("please transmit a param which is a doc element!");
+		}
 	},
 	viewWidth : function () {
 		return window.innerWidth || document.documentElement.clientWidth;
