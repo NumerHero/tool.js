@@ -5,7 +5,6 @@ function u() {
 u.prototype = {
 	constructor : u,
 	namespace : {},
-	delegatespace : {},
 	$ : function (selector) {
 		var $self = this;
 		var aS = this.simpleTrim(selector);
@@ -120,11 +119,11 @@ u.prototype = {
 	},
 	findElement : function  ( selector ,  parent , handle ) {
 		var res = [];
-		if(this.ObjectTest(parent) === "Array") {
+		if(this.ObjectTest(parent) === "Array" || this.ObjectTest(parent) === "HTMLCollection") {
 			for(var i = 0 ; i<parent.length ; i++) {
 				var r = handle( selector , parent[i] );
 				if( r !== undefined ) {
-					res.push.apply(res , r );
+					res.push.apply( res , r );
 				}
 			}
 		}else {
@@ -261,7 +260,6 @@ u.prototype = {
 
 			element.className = EmClass.join(" ");
 		} else {
-			throw new Error("className is undefined");
 			return;
 		}	
 	},
@@ -401,7 +399,6 @@ u.prototype = {
 		this.removeEvent( element , event );
 	},
 	hasClass : function (ele , tclass) {
-		tclass = this.simpleTrim(tclass);
 		if( ele === null ) {
 			throw new Error("selector has some error!");
 			return false;
@@ -442,7 +439,7 @@ u.prototype = {
 	rmCookie : function () {
 		this.setCookie(name , '1' , -1);
 	},
-	getIndex : function ( element ) {
+	getIndex : function () {
 		var result = -1;
 		for( var i = 0 ; i<element.offsetParent.children.length; i++ ) {
 			if ( element === element.offsetParent.children[i]) {
