@@ -461,16 +461,18 @@ u.prototype = {
 		}
 	},
 	Ajax : function (obj) {
+		var $self = this;
 		var ajaxSettings = {
 			url         : obj.url,
-			global      : true,
-			responseType: "text" || "blob",
-			contentType : "application/x-www-form-urlencoded",
-			processData : obj.processData || true,
+			responseType: obj.responseType || "text", 
+			requestHeader : obj.requestHeader || "Content-type",
+			requestType : obj.requestType || "application/x-www-form-urlencoded",
 			sync       : obj.sync || true,
-			method      : obj.method   || "GET",
-			data        : obj.data     =  obj.data     || null,
-			time        : obj.timeout  || "5000",
+			method      : obj.method.toUpperCase() || "GET",
+			data        : obj.data || null,
+			time        : obj.timeout  || 0,
+
+			// 回调函数
 			success     : obj.success  || function ( data ) {
 				console.log("Ajax request is success ~!!! ");
 			},
@@ -478,8 +480,12 @@ u.prototype = {
 				console.warn(" Ajax request timeout !!!");
 			},
 			error       : obj.error    || function ( XHR , sta , errThr ) {
-				throw new Error( "error" + sta + " "  + errThr );	
+				console.log( arguments )
+				throw new Error( "error " + sta + " "  + errThr );	
 			},
+			download : obj.download,
+			upload : obj.upload,
+
 			xhr         : 
 			window.XMLHttpRequest && (window.location.protocol !== "file:" || !window.XDomainRequest ? 
 				function () {
@@ -499,15 +505,29 @@ u.prototype = {
 		}
 
 		var xhr = ajaxSettings.xhr();
+		var afterFormat = "";
 
-		xhr.open(ajaxSettings.method , ajaxSettings.url , ajaxSettings.sync );
+		xhr.timeout = ajaxSettings.timeout;
+		xhr.responseType = ajaxSettings.responseType;
 
-		xhr.send();
+		if ( ajaxSettings.method === "GET" ) {
+			afterFormat = formatUrl( ajaxSettings.url , ajaxSettings.data );
+			xhr.open(ajaxSettings.method , afterFormat , ajaxSettings.sync );
+			xhr.send(null);
+		} else if ( ajaxSettings.method === "POST" ) {
+			xhr.setRequestHeader(ajaxSettings.requestHeader,ajaxSettings.contentType);
+			xhr.open(ajaxSettings.method , ajaxSettings.url , ajaxSettings.sync );
+			xhr.send(ajaxSettings.data);
+		}
 
-		// 将获取的到的数据传递给success 函数进行处理
+
 		xhr.onload  = function () {
 			ajaxSettings.success( xhr.responseText );
 		};
+
+		xhr.onprogress = ajaxSettings.download;
+
+		xhr.upload.onprogress = ajaxSettings.upload;
 
 		xhr.ontimeout = function() {
 			ajaxSettings.timeout();
@@ -516,6 +536,26 @@ u.prototype = {
 		xhr.onerror = function() {
 			ajaxSettings.error();
 		};
+
+
+		function formatUrl( url , data ) {
+			if ( data === null ) {
+				return url;
+			}
+
+			if ( $self.ObjectTest(data) === "String" ) {
+				url = url + "?" + data + new Date().getTime();
+			} else if ( $self.ObjectTest(data) === "Object" ) {
+				for( var i in  data ) {
+					url += url.indexOf("?") == -1 ? "?" : "&";
+					url += encodeURIComponent(i) + "=" + encodeURIComponent(data[i]);
+				}
+
+				url += new Date().getTime();
+			}
+
+			return url;
+		}
 	},
 	getInnerText : function (e) {
 		if( e.nodeType === 1 ) {
