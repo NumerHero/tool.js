@@ -325,13 +325,14 @@ u.prototype = {
 			}
 		}	
 	},
-	addEvent : function (element , event , listener) {
+	addEvent : function (element , event , listener , isCapture) {
+		isCapture = isCapture || false;
 		var events = event.split(" ");
 		for(var i = 0 ; i<events.length;i++) {
 			var d = events[i].split(".");
 
 			if( element.addEventListener ) {
-				element.addEventListener( d[0] , this.addnamespace( d , listener ) , false );
+				element.addEventListener( d[0] , this.addnamespace( d , listener ) , isCapture );
 			} else {
 				element.attachEvent( "on" + events[i] , function() {
 					this.addnamespace(d , listener ).call(element);
@@ -355,7 +356,7 @@ u.prototype = {
 
 		callback && callback();
 	},
-	delegateEvent : function ( element , selector , eventName , listener ) {
+	delegateEvent : function ( element , selector , eventName , listener , isCapture ) {
 		var $self = this;
 		if(!!!listener) {
 			throw new Error("listener doesn't bind a function!");
@@ -370,13 +371,15 @@ u.prototype = {
 		selector = $self.simpleTrim( selector );
 		var sS = selector.split(" ");
 		var opt = [];
-		
+
 		sS.forEach(function ( value , idx ) {
-			 opt.push({
+			opt.push({
 			 	nN : value.split(".")[0],
 			 	sC : value.split(".")[1]
-			 });
+			});
 		});
+
+		
 		$self.addEvent( element , eventName , function(ev) {
 			var ev = ev || event;
 			for( var i = 0 ; i<opt.length ; i++ ) {
@@ -393,7 +396,7 @@ u.prototype = {
 					break;
 				}
 			}
-		});
+		},isCapture);
 	},
 	undelegateEvent : function ( element , event ) {
 		this.removeEvent( element , event );

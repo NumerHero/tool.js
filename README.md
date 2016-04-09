@@ -200,6 +200,30 @@ window.onload = function () {
 }
 ```
 
+if you have many input need to delegate , you must set event flow to event capture mode
+
+like this demo
+
+```
+<form class="register-form" action="/register">
+	<input class="validate" type="text" placeholder="please input your name">
+	<input class="validate" type="tel" placeholder="please input your phone number">
+	<input class="validate" type="email" placeholder="please input your email">
+</form>
+```
+
+If you can delegate the blur event to the form element with capture mode
+
+```
+$ = new u();
+window.onload = function () {
+	var formElement = $.$(".register-form");
+	$.delegateEvent( formElement , "input.validate" , "blur" , function (ev , target) {
+		// you can validate this input value whether is legal 
+	},true); // set the capture mode
+}
+```
+
 # some accidental function
 
 ## typewriter
