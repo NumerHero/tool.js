@@ -142,6 +142,14 @@ u.prototype = {
 		}
 
 	},
+	f : function ( d,v ) {
+		d = d || document;
+		return d.querySelector(v);
+	},
+	ff : function ( d,v ) {
+		d = d || document;
+		return d.querySelectorAll(v);
+	},
 	ObjectTest : function (obj) {
 		var a = Object.prototype.toString.call(obj).split(/(object )/);
 		return a[a.length - 1].substring(0,a[a.length - 1].length - 1);
@@ -520,6 +528,7 @@ u.prototype = {
 		} else if ( ajaxSettings.method === "POST" ) {
 			xhr.setRequestHeader(ajaxSettings.requestHeader,ajaxSettings.contentType);
 			xhr.open(ajaxSettings.method , ajaxSettings.url , ajaxSettings.sync );
+			
 			xhr.send(ajaxSettings.data);
 		}
 
