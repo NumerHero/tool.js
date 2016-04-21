@@ -142,11 +142,11 @@ u.prototype = {
 		}
 
 	},
-	f : function ( d,v ) {
+	f : function ( v,d ) {
 		d = d || document;
 		return d.querySelector(v);
 	},
-	ff : function ( d,v ) {
+	ff : function ( v,d ) {
 		d = d || document;
 		return d.querySelectorAll(v);
 	},
@@ -581,6 +581,198 @@ u.prototype = {
 	},
 	viewHeight : function () {
 		return window.innerHeight || document.documentElement.clientHeight;
+	},
+	digitCn : function ( num ) {
+		var M = Math;
+		var r = "";
+		var t = 0;
+
+		t = parseInt(num);
+		if (num < 0) {
+			r += "负";
+		}
+		
+		t = M.abs(t);
+
+		switch(true) {
+			case (t >= 0 && t <= 9):
+				r += baseJudge(t); 
+				break;
+			case (t >= 10 && t <= 99):
+				r += d(t);
+				break;
+			case (t >= 100 && t <= 999):
+				r += h(t);
+				break;
+			case (t >= 1000 && t<=9999):
+				r += th(t);
+				break;
+			case (t >= 10000 && t<=99999):
+				r += bh(t);
+				break;
+			default: 
+				throw new Error("数字转换超出范围 只能是-9999 到 9999");
+				break;
+		}
+
+		return r;
+		function baseJudge (n) {
+			switch (n) {
+				case 0: 
+					return "零";
+				case 1:
+					return "一";
+				case 2:
+					return "二";
+				case 3:
+					return "三";
+				case 4:
+					return "四";
+				case 5:
+					return "五";
+				case 6:
+					return "六";
+				case 7:
+					return "七";	
+				case 8:
+					return "八";
+				case 9:
+					return "九";
+			}
+		}
+
+		function d (t) {
+			var v = "";
+
+			var a = ~~(t / 10) * 10;
+			var b = t - a;
+
+			var e = ~~(t / 10);
+
+			if (e !== 1) {
+				v += baseJudge(e);					
+			}
+			v += "十";
+
+			if (b !== 0) {
+				v += baseJudge(b);
+			}
+			return v;
+		}
+
+		function h (t) {
+			var v = "";
+			
+			var a = (~~(t / 100) * 100); // 百位
+			var b = (~~((t - a) / 10) * 10); // 十位
+			var c = ~~(t - a - b);     // 个位
+
+			var e = ~~(t / 100);
+			var f = ~~((t - a) / 10);
+
+			v += baseJudge(e);
+			v += "百";
+
+			if (f !== 0) {
+				v += baseJudge(f);
+				v += "十";
+			} else if (c !== 0){
+				v += "零";
+			}
+			
+			if ( c !== 0 ) {
+				v += baseJudge(c);
+			}
+
+			return v;	
+		}
+
+		function th (t) {
+			var v = "";
+
+			var a = ~~(t/1000) * 1000; // 千位
+			var b = ~~((t - a) / 100) * 100; // 百位
+			var c = ~~((t - a - b) / 10) * 10; // 十位
+			var d = ~~(t - a - b - c);     // 个位
+
+			var e = ~~(t/1000); 
+			var f = ~~((t - a) / 100);
+			var g = ~~((t - a - b) / 10);
+			
+			v += baseJudge(e);
+			v += "千";
+
+			if (f !== 0) {
+				v += baseJudge(f);
+				v += "百"
+			} else if (f === 0 && (g !== 0 || d !== 0)) {
+				v += "零";
+			}
+
+			if (g !== 0) {
+				v += baseJudge(g);
+				v += "十"
+			} else if (g === 0 && f === 0) {
+				v += "";
+			} else if (g === 0 && d !== 0) {
+				v += "零";
+			} 
+
+			if (d !== 0) {
+				v += baseJudge(d);
+			}
+			return v;
+		}
+
+		function bh (t) {
+			var v = "";
+
+			var a = ~~(t/10000) * 10000; // 万位
+			var b = ~~((t - a)/1000) * 1000; // 千位
+			var c = ~~((t - a - b) / 100) * 100; // 百位
+			var d = ~~((t - a - b - c) / 10) * 10; // 十位
+			var e = t - a - b - c - d;     // 个位
+
+			var f = ~~(t/10000); 
+			var g = ~~((t - a) / 1000);
+			var h = ~~((t - a - b) / 100);
+			var i = ~~((t - a - b -c) / 10);
+
+			console.log(f,g,h,i,e);
+
+			v += baseJudge(f);
+			v += "万";
+
+			if (g !== 0) {
+				v += baseJudge(g);
+				v += "千";
+			} else if ( g === 0 && ((h !== 0) || (i !== 0)) || (e !== 0) ) {
+				v += "零";
+			}
+
+			if (h !== 0) {
+				v += baseJudge(h);
+				v += "百";
+			} else if ( h === 0 && g === 0 ) {
+				v += "";
+			} else if( h === 0 && ((i !== 0) || (e !== 0))  ) {
+				v += "零";
+			}
+
+			if (i !== 0) {
+				v += baseJudge(i);
+				v += "十";
+			} else if ( i === 0 && h === 0 ) {
+				v += "";
+			} else if ( i === 0 && e !== 0 ) {
+				v += "零";
+			}
+
+			if (e !== 0) {
+				v += baseJudge(e);
+			}
+			return v;
+		}
 	},
 	typewriter : function (obj) {
 		var animate = obj.animate || "default";
