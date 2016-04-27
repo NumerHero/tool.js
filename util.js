@@ -150,6 +150,19 @@ u.prototype = {
 		d = d || document;
 		return d.querySelectorAll(v);
 	},
+	isTimeOut : function (dateStr) {
+		if (/\-/g.test(dateStr)) {
+			dateStr.replace(/-/g,"/");
+		} else if(/\./g.test(dateStr)){
+			dateStr.replace(/\./g,"/");
+		}
+
+		var thisDate = new Date(dateStr),
+			NowDate  = new Date();
+		console.log(thisDate)
+		console.log(NowDate);
+		return (NowDate <= thisDate) ? false : true;
+	},
 	ObjectTest : function (obj) {
 		var a = Object.prototype.toString.call(obj).split(/(object )/);
 		return a[a.length - 1].substring(0,a[a.length - 1].length - 1);
@@ -526,9 +539,8 @@ u.prototype = {
 			xhr.open(ajaxSettings.method , afterFormat , ajaxSettings.sync );
 			xhr.send(null);
 		} else if ( ajaxSettings.method === "POST" ) {
-			xhr.setRequestHeader(ajaxSettings.requestHeader,ajaxSettings.contentType);
 			xhr.open(ajaxSettings.method , ajaxSettings.url , ajaxSettings.sync );
-			
+			xhr.setRequestHeader(ajaxSettings.requestHeader,ajaxSettings.contentType);
 			xhr.send(ajaxSettings.data);
 		}
 
