@@ -473,16 +473,24 @@ u.prototype = {
 		}
 		return result;
 	},
+	formatNumber : function ( value ) {		
+		return (0 < value && value < 10) ? "0" + value : value;
+	},
 	getToday : function () {
-		var D = new Date();
-		var YYYY = D.getFullYear();
-		var MM   = format(D.getMonth() + 1);
-		var DD   = format(D.getDate());
+		var $self = this,
+			D = new Date(),
+			YYYY = D.getFullYear(),
+			MM   = $self.formatNumber(D.getMonth() + 1),
+			DD   = $self.formatNumber(D.getDate())
 		return YYYY + "-" + MM + "-" + DD;
-		
-		function format( value ) {		
-			return (0 < value && value < 10) ? "0" + value : value;
-		}
+	},
+	getNowTime : function () {
+		var $self = this,
+			oDate = new Date(),
+			oHour = oDate.getHours(),
+			oMinute = $self.formatNumber(oDate.getMinutes()),
+			oSecond = $self.formatNumber(oDate.getSeconds())
+		return oHour+":"+oMinute+":"+oSecond;
 	},
 	Ajax : function (obj) {
 		var $self = this;
