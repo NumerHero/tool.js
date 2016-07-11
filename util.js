@@ -159,8 +159,7 @@ u.prototype = {
 
 		var thisDate = new Date(dateStr),
 			NowDate  = new Date();
-		console.log(thisDate)
-		console.log(NowDate);
+
 		return (NowDate <= thisDate) ? false : true;
 	},
 	ObjectTest : function (obj) {
@@ -757,8 +756,6 @@ u.prototype = {
 			var g = ~~((t - a) / 1000);
 			var h = ~~((t - a - b) / 100);
 			var i = ~~((t - a - b -c) / 10);
-
-			console.log(f,g,h,i,e);
 
 			v += baseJudge(f);
 			v += "万";
