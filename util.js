@@ -546,8 +546,8 @@ u.prototype = {
 			xhr.open(ajaxSettings.method , afterFormat , ajaxSettings.sync );
 			xhr.send(null);
 		} else if ( ajaxSettings.method === "POST" ) {
-			xhr.open(ajaxSettings.method , ajaxSettings.url , ajaxSettings.sync );
-			xhr.setRequestHeader(ajaxSettings.requestHeader,ajaxSettings.requestType);
+            xhr.setRequestHeader(ajaxSettings.requestHeader,ajaxSettings.requestType);
+            xhr.open(ajaxSettings.method , ajaxSettings.url , ajaxSettings.sync );
 			xhr.send(ajaxSettings.data);
 		}
 
