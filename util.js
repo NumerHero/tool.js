@@ -516,15 +516,13 @@ u.prototype = {
 			},
 			download : obj.download,
 			upload : obj.upload,
-
-			xhr         : 
-			window.XMLHttpRequest && (window.location.protocol !== "file:" || !window.XDomainRequest ? 
-				function () {
-					return new window.XMLHttpRequest();
-				} :
-				function () {
-					return new window.XDomainRequest();
-				}),
+			xhr         : function() {
+                if(XDomainResquest) {
+                    return new window.XDomainResquest()
+                } else {
+                    return new window.XMLHttpRequest()
+                }
+            },
 			accepts: {
 				xml: "application/xml , text/xml",
 				html: "text/html",
