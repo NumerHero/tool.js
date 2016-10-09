@@ -447,12 +447,10 @@ u.prototype = {
 
 		for(i = 0;i<arr.length;i++)		
 		{
-			/*arr2通过对arr1以 = 进行分离后 获得的是多个数组 arr2是多个数组组成的数组*/
 			var arr2 = arr[i].split('=');
 			
 			if(arr2[0] === name)
 			{
-				/*如果第 i 个数组的名字和要找的名字cookie名字相同的话 就返回对应的内容*/
 				return arr2[1];
 			}
 		}
@@ -544,8 +542,8 @@ u.prototype = {
 			xhr.open(ajaxSettings.method , afterFormat , ajaxSettings.sync );
 			xhr.send(null);
 		} else if ( ajaxSettings.method === "POST" ) {
-            xhr.setRequestHeader(ajaxSettings.requestHeader,ajaxSettings.requestType);
             xhr.open(ajaxSettings.method , ajaxSettings.url , ajaxSettings.sync );
+            xhr.setRequestHeader(ajaxSettings.requestHeader,ajaxSettings.requestType);
 			xhr.send(ajaxSettings.data);
 		}
 
