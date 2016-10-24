@@ -163,49 +163,30 @@ u.prototype = {
 		return (NowDate <= thisDate) ? false : true;
 	},
 	ObjectTest : function (obj) {
-		var a = Object.prototype.toString.call(obj).split(/(object )/);
-		return a[a.length - 1].substring(0,a[a.length - 1].length - 1);
+			var type = Object.prototype.toString.call(obj);
+			return type.match(/^\[object (\w+)\]$/)[1];
 	},
 	cloneObject : function (obj) {
-		var a = {};
-		if(this.ObjectTest(obj) === "Object") {
-			for(var i in obj) {
-				var type = this.ObjectTest(obj[i]);
-				switch(type) {
-					case "Number":
-						var newNum = new Number();
-						newNum = obj[i];
-						a[i] = newNum;
-						break;
-					case "String":
-						var newString = new String();
-						newString = obj[i];
-						a[i] = newString;
-						break;
-					case "Array":
-						var newArray = new Array();
-						newArray = obj[i];
-						a[i] = newArray;
-						break;	
-					case "Object":
-						var newObj = new Object();
-						newObj = obj[i];
-						a[i] = newObj;
-						break;
-					case "Function":
-						var newFun = new Function();
-						newFun = obj[i];
-						a[i] = newFun;
-						break;
-					case "RegExp":
-						var newReg = new RegExp();
-						newReg = obj[i];
-						a[i] = newReg;
-						break;
-				}
-			}
+		if (typeof obj !== "object") {
+			return obj;
 		}
-		return a;
+
+		var cloneObj = this.ObjectTest(obj) === "Array" ? [] : {};
+
+		for (var i in obj) {
+			if (obj.hasOwnProperty(i)) {
+				var value = obj[i],	
+						clone = value;
+
+				if (typeof obj[i] === "object") {
+					cloneObj[i] = deepclone(obj[i]);
+				} else {
+					cloneObj[i] = clone;
+				}
+			}		
+		}
+
+		return cloneObj;
 	},
 	random    : function (min , max , toFix) {
 		toFix = toFix || 1;
